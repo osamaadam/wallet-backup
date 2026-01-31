@@ -84,6 +84,33 @@ go install github.com/osamaadam/wallet-backup@latest
 ./sms-parser -o ./output sms-backup.xml
 ```
 
+### Filter by Sender
+
+```bash
+# Parse only CIB messages
+./sms-parser --sender "CIB" sms-backup.xml
+
+# Parse only Banque Misr messages
+./sms-parser -s "Banque Misr" sms-backup.xml
+```
+
+### Filter by Date
+
+```bash
+# Parse messages from 2025 onwards
+./sms-parser --from "2025-01-01" sms-backup.xml
+
+# Short form
+./sms-parser -f "2024-06-01" sms-backup.xml
+```
+
+### Combine Filters
+
+```bash
+# Parse CIB messages from December 2025 onwards
+./sms-parser --sender "CIB" --from "2025-12-01" -o ./recent-cib sms-backup.xml
+```
+
 The output directory will be automatically created if it doesn't exist.
 
 ### Getting Help

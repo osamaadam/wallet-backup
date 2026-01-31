@@ -11,7 +11,9 @@ import (
 )
 
 var (
-	outputDir string
+	outputDir  string
+	senderName string
+	startDate  string
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -30,6 +32,8 @@ func Execute() error {
 
 func init() {
 	RootCmd.Flags().StringVarP(&outputDir, "output", "o", ".", "Output directory for CSV files (created if not exists)")
+	RootCmd.Flags().StringVarP(&senderName, "sender", "s", "", "Filter by sender name (e.g., 'CIB', 'Banque Misr')")
+	RootCmd.Flags().StringVarP(&startDate, "from", "f", "", "Filter messages from this date onwards (format: YYYY-MM-DD)")
 }
 
 func run(cmd *cobra.Command, args []string) error {
@@ -42,7 +46,7 @@ func run(cmd *cobra.Command, args []string) error {
 
 	// Parse the SMS backup file
 	p := parser.New()
-	transactions, err := p.ParseFile(filePath)
+	transactions, err := p.ParseFile(filePath, senderName, startDate)
 	if err != nil {
 		return fmt.Errorf("failed to parse SMS backup: %w", err)
 	}

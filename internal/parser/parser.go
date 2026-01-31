@@ -23,8 +23,8 @@ func New() *Parser {
 	}
 }
 
-// ParseFile reads and parses an SMS backup XML file
-func (p *Parser) ParseFile(filePath string) (map[string][]models.Transaction, error) {
+// ParseFile reads and parses an SMS backup XML file with optional filters
+func (p *Parser) ParseFile(filePath, senderFilter, startDateFilter string) (map[string][]models.Transaction, error) {
 	// Read XML file
 	xmlFile, err := os.ReadFile(filePath)
 	if err != nil {
@@ -37,6 +37,15 @@ func (p *Parser) ParseFile(filePath string) (map[string][]models.Transaction, er
 		return nil, fmt.Errorf("error parsing XML: %w", err)
 	}
 
+	// Parse start date filter if provided
+	var startDate time.Time
+	if startDateFilter != "" {
+		startDate, err = time.Parse("2006-01-02", startDateFilter)
+		if err != nil {
+			return nil, fmt.Errorf("invalid date format (use YYYY-MM-DD): %w", err)
+		}
+	}
+
 	// Initialize grouped data
 	groupedData := map[string][]models.Transaction{
 		"CIB_Current_Debit": {},
@@ -46,6 +55,11 @@ func (p *Parser) ParseFile(filePath string) (map[string][]models.Transaction, er
 	seenTransactions := make(map[string]bool)
 
 	for _, sms := range backup.SMS {
+		// Apply sender filter
+		if senderFilter != "" && sms.Address != senderFilter {
+			continue
+		}
+
 		// Create message signature for deduplication
 		msgSignature := fmt.Sprintf("%s|%s|%s", sms.Date, sms.Address, sms.Body)
 		if seenTransactions[msgSignature] {
@@ -59,6 +73,12 @@ func (p *Parser) ParseFile(filePath string) (map[string][]models.Transaction, er
 			continue
 		}
 		dateObj := time.Unix(dateMs/1000, 0)
+
+		// Apply date filter
+		if !startDate.IsZero() && dateObj.Before(startDate) {
+			continue
+		}
+
 		dateStr := dateObj.Format("2006-01-02 15:04:05")
 
 		tx := models.Transaction{
