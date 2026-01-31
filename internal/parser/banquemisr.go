@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -11,8 +12,6 @@ import (
 
 // parseBanqueMisrMessage parses Banque Misr bank SMS messages
 func parseBanqueMisrMessage(tx *models.Transaction, body string) {
-	tx.TargetGroup = "Banque_Misr"
-
 	// Skip OTP and login messages
 	skipWords := []string{"OTP", "password", "تسجيل الدخول", "code"}
 	for _, word := range skipWords {
@@ -20,6 +19,19 @@ func parseBanqueMisrMessage(tx *models.Transaction, body string) {
 			tx.TargetGroup = ""
 			return
 		}
+	}
+
+	// Extract card number from the message
+	// Pattern: بطاقة بنك مصر ****XXXX or similar
+	cardPattern := regexp.MustCompile(`\*{4}(\d{4})`)
+	cardMatch := cardPattern.FindStringSubmatch(body)
+
+	if len(cardMatch) > 1 {
+		cardDigits := cardMatch[1]
+		tx.TargetGroup = fmt.Sprintf("Banque_Misr_Card_%s", cardDigits)
+	} else {
+		// Fallback for messages without card number
+		tx.TargetGroup = "Banque_Misr"
 	}
 
 	if strings.Contains(body, "تم تحويل مبلغ") || strings.Contains(body, "تم اضافة مبلغ") {

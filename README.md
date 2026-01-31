@@ -124,8 +124,9 @@ The output directory will be automatically created if it doesn't exist.
 The tool generates separate CSV files for each account/card:
 
 - `CIB_Current_Debit.csv` - CIB debit card and current account transactions
-- `CIB_Credit_Card_XXXX.csv` - CIB credit card transactions (one file per card)
-- `Banque_Misr.csv` - Banque Misr account transactions
+- `CIB_Credit_Card_XXXX.csv` - CIB credit card transactions (one file per card, XXXX = last 4 digits)
+- `Banque_Misr_Card_XXXX.csv` - Banque Misr card transactions (one file per card, XXXX = last 4 digits)
+- `Banque_Misr.csv` - Banque Misr account transactions without card numbers (transfers, etc.)
 
 ### CSV Format
 

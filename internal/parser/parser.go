@@ -46,11 +46,8 @@ func (p *Parser) ParseFile(filePath, senderFilter, startDateFilter string) (map[
 		}
 	}
 
-	// Initialize grouped data
-	groupedData := map[string][]models.Transaction{
-		"CIB_Current_Debit": {},
-		"Banque_Misr":       {},
-	}
+	// Initialize grouped data - will be populated dynamically
+	groupedData := map[string][]models.Transaction{}
 
 	seenTransactions := make(map[string]bool)
 
